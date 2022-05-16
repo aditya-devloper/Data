@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.scroll{
+  height: 700px;
+  overflow-y: scroll;
+  /* scrollbar-width: none; */
+}
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.a{
+  width: 48rem;
+}
+
+.f{
+  width: 29rem;
+  height: 29rem;
+}
