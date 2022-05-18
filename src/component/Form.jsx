@@ -6,6 +6,11 @@ import { takeTheData } from '../reducers/Takedata';
 import { putTheData } from '../reducers/Editdata';
 import { changeTheData } from '../reducers/Change'
 
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom'
+//import { Link } from 'gatsby';
+import {useNavigate, useLocation } from "react-router-dom";
+
 
 
 import { confirmAlert } from 'react-confirm-alert';
@@ -23,22 +28,34 @@ export default function Form() {
     const upState= useSelector((state)=>state.putTheData)
 
 
+    const location = useLocation();
     
-    console.log("hii-hello", upState)
+        const navigate = useNavigate();
 
+        // const coursesPage = () => {
+        //     history.push("/courses")
+        // }
 
     useEffect(() => {
         console.log("useeffect", edState)
         if (edState) {
             setData(edState)
         }
+        if(location.pathname === '/form')
+        {
+            setData({
+                name: "",
+                email: "",
+                phone: ""
+            })
+        }
     }, [edState])
 
     function handleForm(e) {
+        
         dispatch(Remove(true));
 
         const arr =myState.some((e)=>e.email==data.email)
-console.log("vvvvvv",arr);
         e.preventDefault()
         if (data.name != "" && data.email != "" && data.phone != "") {
             console.log("ssssss", arr)
@@ -46,7 +63,7 @@ console.log("vvvvvv",arr);
                 dispatch(Takedata(data))
                 setData({ name: "", email: "", phone: "" })
                 setnData(false)
-                
+                navigate('/');
             }
             else
             {
@@ -60,16 +77,30 @@ console.log("vvvvvv",arr);
     }
     function handleUpdate(e) {
         e.preventDefault()
-        if (data.name != "" && data.email != "" && data.phone != "")
+        if (data.name != "" && data.email != "" && data.phone != ""){
             dispatch(Remove(data))
-        setData({ name: "", email: "", phone: "" })
-        dispatch(Change(false))
-        dispatch(Remove(true));
+            
+            dispatch(Change(false))
+            dispatch(Remove(true));
+
+            setData({
+                name: "",
+                email: "",
+                phone: ""
+            })
+
+
+            navigate('/')
+        }
+        else
+        {
+            alert("please fill all the fields")
+        }
     }
 
     function toggle() {
         dispatch(Remove(true));
-        if (data.name != "" && data.email != "" && data.phone != "") {
+       
             confirmAlert({
                 title: 'Data is Not Saved...!!!!',
                 message: 'Are you sure to continue ?',
@@ -80,6 +111,9 @@ console.log("vvvvvv",arr);
                             dispatch(Remove(upState))
                             setData({ name: "", email: "", phone: "" })
                             dispatch(Change(false))
+                            navigate('/');
+
+                            
                         }
                     },
                     {
@@ -88,20 +122,56 @@ console.log("vvvvvv",arr);
                     }
                 ]
             });
-        }
+    }
+
+    function back(){
+        if (data.name != "" || data.email != "" || data.phone != ""){
+        confirmAlert({
+            title: 'Data is Not Saved...!!!!',
+            message: 'Are you sure to continue ?',
+            buttons: [
+                {
+                    label: 'Yes',
+                    onClick: () => {
+                        navigate('/');
+                    }
+                },
+                {
+                    label: 'No',
+                    onClick: () => {  }
+
+                }
+            ]
+        });
+    }
+    else {
+        navigate('/')
+    }
+
 
     }
 
 
     return (
         <div>
+              
+              <button disabled={!reState}  class=" ml-24 relative inline-flex justify-start py-3 pl-4 pr-12 overflow-hidden font-semibold text-indigo-600 transition-all duration-150 ease-in-out rounded hover:pl-10 hover:pr-6 bg-gray-50 group w-28 h-14" onClick={() => back()}>
+          <span class="absolute bottom-0 left-0 w-full h-1 transition-all duration-150 ease-in-out bg-indigo-600 group-hover:h-full"></span>
+          <span class="absolute right-0 pr-4 duration-200 ease-out group-hover:translate-x-12">
+            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </span>
+          <span class="absolute left-0 pl-2.5 -translate-x-12 group-hover:translate-x-0 ease-out duration-200">
+            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </span>
+          <span class="relative w-full text-left transition-colors duration-200 ease-in-out group-hover:text-white">Home</span>
+        </button>
 
-            <div class=" h-full ">
+            <div className="absolute mt-40" >
                 
             {
-                ndata?(<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
-                <p class="font-bold">Be Warned</p>
-                <p>Something not ideal might be happening.</p>
+                ndata?(<div class="bg-red-100 border-l-4 relative left-20 border-red-500 text-red-700 p-4 w  pt-7" role="alert">
+                <p class="font-bold">Error</p>
+                <p>This Email has already been registered !!!</p>
               </div>):null
             }
 
@@ -128,9 +198,11 @@ console.log("vvvvvv",arr);
                     </div>
 
                     {
-                        chState ? <div class="flex"><button type='button' class=" mr-4 block w-full bg-blue-400 mt-5 py-2 rounded-2xl hover:bg-blue-900 hover:-translate-y-1 transition-all duration-500 text-white font-semibold mb-2" onClick={toggle} >Back</button><button type='button' class="block w-full bg-blue-400 mt-5 py-2 rounded-2xl hover:bg-blue-900 hover:-translate-y-1 transition-all duration-500 text-white font-semibold mb-2" onClick={handleUpdate} >Update</button></div> : <button type='submit' class="block w-full bg-blue-400 mt-5 py-2 rounded-2xl hover:bg-blue-900 hover:-translate-y-1 transition-all duration-500 text-white font-semibold mb-2"  >Submit</button>
+                        chState ? <div class="flex"><button type='button' class=" mr-4 block w-full bg-blue-400 mt-5 py-2 rounded-2xl hover:bg-blue-900 hover:-translate-y-1 transition-all duration-500 text-white font-semibold mb-2" onClick={toggle} >Back</button><button type='button' class="block w-full bg-blue-400 mt-5 py-2 rounded-2xl hover:bg-blue-900 hover:-translate-y-1 transition-all duration-500 text-white font-semibold mb-2" onClick={handleUpdate} >Update</button></div> :(<button type='submit' class="block w-full bg-blue-400 mt-5 py-2 rounded-2xl hover:bg-blue-900 hover:-translate-y-1 transition-all duration-500 text-white font-semibold mb-2" >Submit</button> )
 
                     }
+                    
+                   
 
                     {/* <div class="flex justify-between mt-4">
                         <span class="text-sm ml-2 hover:text-blue-500 cursor-pointer hover:-translate-y-1 duration-500 transition-all">Forgot Password ?</span>
